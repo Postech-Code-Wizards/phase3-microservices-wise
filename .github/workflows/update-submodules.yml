@@ -1,28 +1,29 @@
-name: Auto Update Submodules
+name: Update Submodules
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "0 6 * * *" # roda todo dia 6h UTC
-  workflow_dispatch:     # permite acionar manualmente
-  push:
-    paths:
-      - '.github/workflows/update-submodules.yml'
+    - cron: '0 3 * * *'  # Executa todo dia às 03:00 UTC
 
 jobs:
-  update-submodules:
+  update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
-      - name: Update submodules
+      - name: Pull latest submodules
+        run: |
+          git submodule update --remote --merge
+
+      - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git submodule update --remote --merge
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "🔄 Atualiza submodules automaticamente" || echo "Nada para commitar"
-          git push
+          git commit -m "🔄 Auto-update submodules via GitHub Actions" || echo "nothing to commit"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/Postech-Code-Wizards/phase3-microservices-wise.git HEAD:main
