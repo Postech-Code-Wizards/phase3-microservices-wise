@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: GRaPHerf
+      RABBITMQ_DEFAULT_PASS: xcU204QDLk2@
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  postgres_auth:
+    image: postgres:15
+    container_name: postgres_auth
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: auth_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+
+  postgres_history:
+    image: postgres:15
+    container_name: postgres_history
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: history_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - postgres_history_data:/var/lib/postgresql/data
+
+  postgres_schedule:
+    image: postgres:15
+    container_name: postgres_schedule
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: wise
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_schedule_data:/var/lib/postgresql/data
+
+  notification-wise-backend:
+    build:
+      context: ./notification-wise-backend
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      MONGO_ROOT_USERNAME: admin
+      MONGO_ROOT_PASSWORD: password
+
+  authentication-wise-backend:
+    build:
+      context: ./authentication-wise-backend
+    depends_on:
+      - postgres_auth
+
+  history-wise-backend:
+    build:
+      context: ./history-wise-backend
+    depends_on:
+      - postgres_history
+      - rabbitmq
+
+  schedule-wise-backend:
+    build:
+      context: ./schedule-wise-backend
+    depends_on:
+      - postgres_schedule
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:
+  postgres_auth_data:
+  postgres_history_data:
+  postgres_schedule_data:
