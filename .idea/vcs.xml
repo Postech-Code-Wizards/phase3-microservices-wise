@@ -2,6 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/authentication-wise-backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/history-wise-backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/notification-wise-backend" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/schedule-wise-backend" vcs="Git" />
   </component>
 </project>
