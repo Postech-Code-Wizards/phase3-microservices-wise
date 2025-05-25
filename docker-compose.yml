@@ -1,10 +1,14 @@
 version: '3.8'
 
+networks:
+  wise_network:
+    driver: "bridge"
+
 services:
 
   mongodb:
+    container_name: wise_mongodb
     image: mongo:latest
-    container_name: mongodb
     ports:
       - "27017:27017"
     environment:
@@ -12,10 +16,12 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - wise_network
 
   rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: wise_rabbitmq
+    image: rabbitmq:3-management-alpine
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -24,10 +30,12 @@ services:
       RABBITMQ_DEFAULT_PASS: xcU204QDLk2@
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - wise_network
 
   postgres_auth:
+    container_name: wise_postgres_auth
     image: postgres:15
-    container_name: postgres_auth
     ports:
       - "5433:5432"
     environment:
@@ -36,10 +44,12 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - wise_network
 
   postgres_history:
+    container_name: wise_postgres_history
     image: postgres:15
-    container_name: postgres_history
     ports:
       - "5434:5432"
     environment:
@@ -48,10 +58,12 @@ services:
       POSTGRES_PASSWORD: 1234
     volumes:
       - postgres_history_data:/var/lib/postgresql/data
+    networks:
+      - wise_network
 
   postgres_schedule:
+    container_name: wise_postgres_schedule
     image: postgres:15
-    container_name: postgres_schedule
     ports:
       - "5435:5432"
     environment:
@@ -60,37 +72,55 @@ services:
       POSTGRES_PASSWORD: admin
     volumes:
       - postgres_schedule_data:/var/lib/postgresql/data
+    networks:
+      - wise_network
 
   notification-wise-backend:
+    container_name: notification_wise_backend
     build:
       context: ./notification-wise-backend
     ports:
-      - "8084:8084"
+      - "8084:8080"
     depends_on:
       - mongodb
       - rabbitmq
     environment:
       MONGO_ROOT_USERNAME: admin
       MONGO_ROOT_PASSWORD: password
+    networks:
+      - wise_network
 
   authentication-wise-backend:
+    container_name: authentication_wise_backend
     build:
       context: ./authentication-wise-backend
     depends_on:
       - postgres_auth
+    networks:
+      - wise_network
 
   history-wise-backend:
     build:
       context: ./history-wise-backend
+    container_name: history_wise_backend
+    ports:
+      - "8083:8080"
     depends_on:
       - postgres_history
       - rabbitmq
+    networks:
+      - wise_network
 
   schedule-wise-backend:
+    container_name: schedule_wise_backend
     build:
       context: ./schedule-wise-backend
+    ports:
+      - "8082:8080"
     depends_on:
       - postgres_schedule
+    networks:
+      - wise_network
 
 volumes:
   mongodb_data:
