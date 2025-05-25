@@ -1,12 +1,19 @@
 [submodule "schedule-wise-backend"]
 	path = schedule-wise-backend
 	url = https://github.com/Postech-Code-Wizards/schedule-wise-backend.git
+	branch = master
+
 [submodule "authentication-wise-backend"]
 	path = authentication-wise-backend
 	url = https://github.com/Postech-Code-Wizards/authentication-wise-backend.git
+	branch = master
+
 [submodule "notification-wise-backend"]
 	path = notification-wise-backend
 	url = https://github.com/Postech-Code-Wizards/notification-wise-backend.git
+	branch = master
+
 [submodule "history-wise-backend"]
 	path = history-wise-backend
 	url = https://github.com/Postech-Code-Wizards/history-wise-backend.git
+	branch = master
